@@ -8,10 +8,11 @@ flask = "*"
 flask-cors = "*"
 flask-migrate = "*"
 flask-restful = "*"
-flask-sqlalchemy = "*"
 sqlalchemy = "*"
-sqlalchemy-serializer = "*"
 faker = "*"
+flask-serializer = "*"
+sqlalchemy-serializer = "*"
+cors = "*"
 
 [dev-packages]
 

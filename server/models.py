@@ -1,16 +1,18 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from sqlalchemy_serializer import SerializerMixin
+
 
 
 
 db = SQLAlchemy()
 
 
-class User(db.Model):
+class User(db.Model, SerializerMixin):
     __tablename__="users"
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, nullablle=False, unique=True)
+    email = db.Column(db.String, nullable=False, unique=True)
     _password_hash = db.Column(db.String())
 
     game_entries = db.relationship('GameEntry', backref="user" )
@@ -21,12 +23,12 @@ class User(db.Model):
 
 
 
-class GameEntry(db.Model):
+class GameEntry(db.Model, SerializerMixin):
     __tablename__="game_entries"
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(), nullable=False)
-    platform = db.Column(db.String(), nullablle=False)
-    description = db.Colum(db.String(100))
+    platform = db.Column(db.String(), nullable=False)
+    description = db.Column(db.String(100))
     user_id = db.Column(db.Integer(), db. ForeignKey('users.id'))
 
     genres = db.relationship('Genre', secondary='game_genre', back_populates ='games')
@@ -35,7 +37,7 @@ class GameEntry(db.Model):
         return f'Game: {self.title}, Platform: {self.platform}'
 
 
-class GameReview(db.Model):
+class GameReview(db.Model, SerializerMixin):
     __tablename__='game_reviews'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +54,7 @@ class GameReview(db.Model):
 
 
 
-class Genre(db.Model):
+class Genre(db.Model, SerializerMixin):
     __tablename__="genres"
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -64,7 +66,7 @@ class Genre(db.Model):
 
 
 
-class GameGenre(db.Model):
+class GameGenre(db.Model, SerializerMixin):
     __tablename__ = "game_genre"
     game_entry_id = db.Column(db.Integer(), db.ForeignKey('game_entries.id'), primary_key=True)
     genre_id = db.Column(db.Integer(), db.ForeignKey('genres.id'), primary_key=True)
