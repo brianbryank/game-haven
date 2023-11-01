@@ -1,10 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy_serializer import SerializerMixin
+from flask_bcrypt import Bcrypt
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 
 class User(db.Model, SerializerMixin):
@@ -15,28 +18,49 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    # _password_hash = db.Column(db.String())
+    _password_hash = db.Column(db.String())
 
     game_entries = db.relationship('GameEntry', backref="user" )
     game_reviews = db.relationship('GameReview', backref="user" )
 
     def __repr__(self):
         return f'<User: {self.username}>'
+    
+
+    @hybrid_property
+    def password_hash(self):
+        raise AttributeError ("Not allowed")
+    
+
+    @password_hash.setter
+
+    def password_hash (self, password):
+        self._password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
+
+    # def check_password(self, password):
+    #     return bcrypt.check_password_hash(self._password_hash, password)
+        
+    def authenticate(self, password):
+        return bcrypt.check_password_hash(self._password_hash,password.encode("utf-8"))
+
+    
+   
 
 
 
 class GameEntry(db.Model, SerializerMixin):
     __tablename__="game_entries"
 
-    serialize_rules = ("-genres", "-game_reviews", "-user.game_entries",)
+    serialize_rules = ("-genres", "-game_reviews", "-user",)
 
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(), nullable=False)
     platform = db.Column(db.String(), nullable=False)
+    image_url = db.Column(db.String(255))
     description = db.Column(db.String(100))
 
     user_id = db.Column(db.Integer(), db. ForeignKey('users.id'))
-    # genre_id = db.Column(db.Integer, db.ForeignKey('genres.id'))
+    
 
     genres = db.relationship('GameGenre', backref='game_entry')
     game_reviews = db.relationship('GameReview', backref='game_entry')
